@@ -1,0 +1,20 @@
+#prot
+server:
+  port: 8181
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:49161:xe
+    username: kdwu
+    password: kdwu
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+
+  jdbc:
+    template:
+      query-timeout: 5
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
