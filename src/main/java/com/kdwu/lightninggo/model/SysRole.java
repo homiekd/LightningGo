@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
@@ -31,15 +32,17 @@ public class SysRole implements Serializable {
     @Column(name = "AVAILABLE", length = 1)
     private Boolean available = Boolean.FALSE;
 
-    @ManyToMany
-    @JoinTable(name = "SYS_USER_ROLE",
-               joinColumns = {@JoinColumn(name = "ROLE_NO")},
-               inverseJoinColumns = {@JoinColumn(name = "USER_NO")})
-    private Set<SysUser> userInfos;
+    @OneToMany(mappedBy = "sysRole")
+    private Set<SysUserRole> sysUserRoles = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "SYS_ROLE_PERMISSION",
-               joinColumns = {@JoinColumn(name = "ROLE_NO")},
-               inverseJoinColumns = {@JoinColumn(name = "PERMISSION_NO")})
-    private Set<SysPermission> permissions;
+    @OneToMany(mappedBy = "sysRole")
+    private Set<SysRolePermission> sysRolePermissions = new HashSet<>();
+
+    public Set<SysUserRole> getSysUserRoles() {
+        return sysUserRoles;
+    }
+
+    public Set<SysRolePermission> getSysRolePermissions() {
+        return sysRolePermissions;
+    }
 }

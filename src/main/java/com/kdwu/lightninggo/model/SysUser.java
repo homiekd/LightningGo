@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class SysUser implements Serializable, UserDetails {
 
     @NonNull
     @Column(name = "USER_NAME", nullable = false, length = 50)
-    private String name;
+    private String username;
 
     @NonNull
     @Column(name = "USER_PSW", nullable = false, length = 50)
@@ -43,46 +44,65 @@ public class SysUser implements Serializable, UserDetails {
     @Column(name = "STATE", length = 1)
     private Boolean state = Boolean.TRUE;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
-    private Set<SysRole> roles;
+    @OneToMany(mappedBy = "sysUser")
+    private Set<SysUserRole> sysUserRoles = new HashSet<>();
 
-    public Set<SysRole> getRoles() {
-        return roles;
-    }
-    public void setRoles(Set<SysRole> roles) {
-        this.roles = roles;
+    public Set<SysUserRole> getSysUserRoles() {
+        return sysUserRoles;
     }
 
-    //實作權限登入
-
+    /**
+     * 權限 數據
+     * @return
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
     }
 
+    /**
+     * 用戶名
+     * @return
+     */
     @Override
     public String getUsername() {
-        return null;
+        return username;
     }
 
+    /**
+     * 帳號是否過期
+     * @return
+     */
     @Override
     public boolean isAccountNonExpired() {
         return false;
     }
 
+    /**
+     * 帳號是否被鎖定
+     * @return
+     */
     @Override
     public boolean isAccountNonLocked() {
         return false;
     }
 
+    /**
+     * 認證是否過期
+     * @return
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
     }
 
+    /**
+     * 帳號是否啟用
+     * @return
+     */
     @Override
     public boolean isEnabled() {
-        return false;
+        return state;
     }
 }
 

@@ -6,8 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
@@ -43,19 +42,10 @@ public class SysPermission implements Serializable {
     @Column(name = "AVAILABLE", length = 1)
     private Boolean available = Boolean.FALSE;
 
-    @Transient
-    private List<String> permissions;
+    @OneToMany(mappedBy = "sysPermission")
+    private Set<SysRolePermission> sysRolePermissions = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "SYS_ROLE_PERMISSION",
-               joinColumns = {@JoinColumn(name = "PERMISSION_NO")},
-               inverseJoinColumns = {@JoinColumn(name = "ROLE_NO")})
-    private Set<SysRole> roles;
-
-    public List<String> getPermissions() {
-        return Arrays.asList(this.permission.trim().split("\\|"));
-    }
-    public void setPermissions(List<String> permissions) {
-        this.permissions = permissions;
+    public Set<SysRolePermission> getSysRolePermissions() {
+        return sysRolePermissions;
     }
 }
