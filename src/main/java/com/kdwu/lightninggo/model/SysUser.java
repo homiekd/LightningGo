@@ -1,20 +1,19 @@
 package com.kdwu.lightninggo.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "SYS_USER")
@@ -44,20 +43,41 @@ public class SysUser implements Serializable, UserDetails {
     @Column(name = "STATE", length = 1)
     private Boolean state = Boolean.TRUE;
 
-    @OneToMany(mappedBy = "sysUser")
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<SysUserRole> sysUserRoles = new HashSet<>();
 
-    public Set<SysUserRole> getSysUserRoles() {
-        return sysUserRoles;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SysUser user = (SysUser) o;
+        return id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     /**
-     * 權限 數據
+     * 根據自訂的邏輯來傳回使用者許可權。如果使用者許可權回傳空，
+     * 或攔截路徑的許可權不同，則驗證不通過。
      * @return
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        Set<SysUserRole> userRoles = this.getSysUserRoles();
+
+        for (SysUserRole userRole : userRoles) {
+            SysRole role = userRole.getRole();
+            if (role != null) {
+                authorities.add(new SimpleGrantedAuthority(role.getName()));
+            }
+        }
+
+        return authorities;
     }
 
     /**

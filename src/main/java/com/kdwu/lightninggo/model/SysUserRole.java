@@ -1,14 +1,15 @@
 package com.kdwu.lightninggo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @IdClass(SysUserRoleId.class)
 @Table(name = "SYS_USER_ROLE")
 public class SysUserRole implements Serializable {
@@ -23,10 +24,22 @@ public class SysUserRole implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "USER_NO")
-    private SysUser sysUser;
+    private SysUser user;
 
     @ManyToOne
-    @JoinColumn(name = "Role_NO")
-    private SysRole sysRole;
+    @JoinColumn(name = "ROLE_NO")
+    private SysRole role;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SysUserRole userRole = (SysUserRole) o;
+        return uId == userRole.uId && rId == userRole.rId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uId, rId);
+    }
 }

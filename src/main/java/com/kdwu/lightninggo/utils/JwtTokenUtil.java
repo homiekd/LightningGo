@@ -12,7 +12,8 @@ import java.util.Map;
 @Component
 public class JwtTokenUtil {
 
-    private static final long EXPIRATION_TIME = 1 * 60 * 1000;
+    // 24 * 60 * 60 * 1000 * n
+    private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000 * 1;
     /**
      * JWT SECRET KEY
      */

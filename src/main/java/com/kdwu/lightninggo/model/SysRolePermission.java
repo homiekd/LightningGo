@@ -1,14 +1,15 @@
 package com.kdwu.lightninggo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@Getter
 @IdClass(SysRolePermissionId.class)
 @Table(name = "SYS_ROLE_PERMISSION")
 public class SysRolePermission implements Serializable {
@@ -22,10 +23,28 @@ public class SysRolePermission implements Serializable {
     private int permissionNo;
 
     @ManyToOne
-    @JoinColumn(name = "Role_NO")
-    private SysRole sysRole;
+    @JoinColumn(name = "ROLE_NO")
+    private SysRole sRole;
 
     @ManyToOne
     @JoinColumn(name = "PERMISSION_NO")
     private SysPermission sysPermission;
+
+    public SysRolePermission (int roleNo, int permissionNo){
+        this.roleNo = roleNo;
+        this.permissionNo = permissionNo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SysRolePermission that = (SysRolePermission) o;
+        return roleNo == that.roleNo && permissionNo == that.permissionNo;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(roleNo, permissionNo);
+    }
 }

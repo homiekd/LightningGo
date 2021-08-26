@@ -3,6 +3,7 @@ package com.kdwu.lightninggo.config;
 import com.kdwu.lightninggo.security.JwtAccessDeniedHandler;
 import com.kdwu.lightninggo.security.JwtAuthenticationEntryPoint;
 import com.kdwu.lightninggo.security.JwtAuthenticationFilter;
+import com.kdwu.lightninggo.security.SecurityContents;
 import com.kdwu.lightninggo.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -43,11 +44,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .mvcMatchers("/login");
+                .mvcMatchers(SecurityContents.ACCESS_LIST);
     }
 
     /**
-     * 自定義登錄邏輯的配置
+     * 自定義登入邏輯的配置
      * 配置到Security中進行認證
      * @param auth
      * @throws Exception

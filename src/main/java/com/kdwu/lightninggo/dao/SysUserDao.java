@@ -4,8 +4,7 @@ import com.kdwu.lightninggo.model.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository("sysUserDao")
+@Repository
 public interface SysUserDao extends JpaRepository<SysUser, Integer> {
-
     public SysUser getByUsername(String username);
 }

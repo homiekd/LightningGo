@@ -20,4 +20,5 @@ public interface SysUserService {
     public CommonResult login(SysUser user);
 
     public SysUser getSysUser(String username);
+
 }

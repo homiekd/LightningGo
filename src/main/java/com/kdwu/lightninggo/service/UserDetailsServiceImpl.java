@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * 實現UserDetailsService介面，實現自定義登錄邏輯
+ * 實現UserDetailsService介面，實現自定義登入邏輯
  * 複寫loadUserByUsername方法
  */
 @Service
@@ -25,6 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (sysUser == null) {
             return null;
         }
+
         return sysUser;
     }
 }

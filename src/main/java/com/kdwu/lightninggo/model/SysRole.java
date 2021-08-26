@@ -1,17 +1,18 @@
 package com.kdwu.lightninggo.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "SYS_ROLE")
@@ -32,17 +33,24 @@ public class SysRole implements Serializable {
     @Column(name = "AVAILABLE", length = 1)
     private Boolean available = Boolean.FALSE;
 
-    @OneToMany(mappedBy = "sysRole")
+    @JsonIgnore
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
     private Set<SysUserRole> sysUserRoles = new HashSet<>();
 
-    @OneToMany(mappedBy = "sysRole")
+    @JsonIgnore
+    @OneToMany(mappedBy = "sRole", fetch = FetchType.EAGER)
     private Set<SysRolePermission> sysRolePermissions = new HashSet<>();
 
-    public Set<SysUserRole> getSysUserRoles() {
-        return sysUserRoles;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SysRole role = (SysRole) o;
+        return id.equals(role.id);
     }
 
-    public Set<SysRolePermission> getSysRolePermissions() {
-        return sysRolePermissions;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

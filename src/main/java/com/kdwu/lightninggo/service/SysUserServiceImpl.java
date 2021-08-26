@@ -56,7 +56,7 @@ public class SysUserServiceImpl implements SysUserService{
 
     @Override
     public CommonResult login(SysUser user) {
-        log.info("1. 開始登錄。");
+        log.info("1. 開始登入。");
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 
@@ -74,18 +74,18 @@ public class SysUserServiceImpl implements SysUserService{
             return CommonResult.forbidden("登入失敗：此帳戶已被禁用，請通知管理員。");
         }
 
-        log.info("2. 登錄成功， 在security對象中存入登錄者訊息。");
+        log.info("2. 登入成功， 在security對象中存入登入者訊息。");
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        log.info("3. 根據登錄訊息獲取Token.");
+        log.info("3. 根據登入訊息獲取Token.");
         // 需使用jwt來生成token
         String token = tokenUtil.generateToken(userDetails);
         Map<String, String> map = new HashMap<>(3);
         map.put("tokenHead", "Bearer ");
         map.put("token", token);
 
-        return CommonResult.success(map, "登錄驗證成功!");
+        return CommonResult.success(map, "登入驗證成功!");
     }
 
     @Override
@@ -95,4 +95,5 @@ public class SysUserServiceImpl implements SysUserService{
         if (sysUser == null) return null;
         return sysUser;
     }
+
 }

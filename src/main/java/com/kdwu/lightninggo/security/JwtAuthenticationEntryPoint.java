@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- *當用戶未登錄合token過期的情況下訪問資源
+ *當用戶未登入和token過期的情況下訪問資源
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -23,7 +23,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setContentType("application/json");
         PrintWriter writer = httpServletResponse.getWriter();
-        writer.write(new ObjectMapper().writeValueAsString(CommonResult.unauthorized("您尚未登錄，請先登錄後操作")));
+        writer.write(new ObjectMapper().writeValueAsString(CommonResult.unauthorized("您尚未登入，請先登入後操作")));
         writer.flush();
         writer.close();
     }
