@@ -29,7 +29,7 @@ public class SysUser implements Serializable, UserDetails {
     private String username;
 
     @NonNull
-    @Column(name = "USER_PSW", nullable = false, length = 50)
+    @Column(name = "USER_PSW", length = 100)
     private String password;
 
     @NonNull

@@ -8,18 +8,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("hello")
+@RequestMapping("Hello")
 @Api(value = "歡迎測試控制器")
 public class HelloController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @GetMapping("/project")
+    @GetMapping("/Project")
     public String helloProject() {
         return "Hello, Lightning GO Project!!";
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @GetMapping("/testAuth")
+    @GetMapping("/TestAuth")
     public CommonResult testRoleAuthorize(){
         return CommonResult.forbidden("權限不足，請通知管理員！！");
     }

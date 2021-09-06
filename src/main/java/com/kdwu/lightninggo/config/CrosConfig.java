@@ -12,11 +12,21 @@ public class CrosConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        //映射路徑
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")
+                // 允許跨網域請求的來源
+                .allowedOrigins("http://localhost:8888")
+                // 允許跨域訪問的方法
                 .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE")
+                // 允許跨域攜帶cookie資訊，預設跨網域請求是不攜帶cookie資訊的。
                 .allowCredentials(true)
-                .maxAge(3600)
-                .allowedHeaders("*");
+                //允許哪些Header
+                .allowedHeaders("*")
+                //可獲取哪些Header（因為跨網域預設不能取得全部Header資訊）
+//                .exposedHeaders("Header1", "Header2")
+                //
+                .allowedOriginPatterns("*")
+                // 最大反應時間
+                .maxAge(3600);
     }
 }

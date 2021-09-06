@@ -3,6 +3,7 @@ package com.kdwu.lightninggo.security;
 import com.kdwu.lightninggo.service.UserDetailsServiceImpl;
 import com.kdwu.lightninggo.utils.JwtTokenUtil;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,7 @@ import java.io.IOException;
  * token認證
  * 在介面訪問前進行過濾
  */
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -46,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         // step1. 獲取token
         String header = httpServletRequest.getHeader(tokenHeader);
-
+        logger.info("有無拿到請求頭token：" + header);
         // step2. 判斷token是否存在
         if (header != null && header.startsWith(tokenHead)){
             // 拿到token 主體

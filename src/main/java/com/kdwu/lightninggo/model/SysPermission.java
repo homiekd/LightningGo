@@ -26,20 +26,29 @@ public class SysPermission implements Serializable {
     @Column(name = "NAME", length = 50)
     private String name;
 
-    @Column(name = "RESOURCE_TYPE", length = 50)
-    private String resourcetype;
+    @Column(name = "RESOURCE_TYPE", nullable = false, length = 1)
+    private Character resourcetype;
 
-    @Column(name = "URL", length = 100)
+    @Column(name = "URL", length = 150)
     private String url;
+
+    @Column(name = "PATH", length = 100)
+    private String path;
 
     @Column(name = "PERMISSION", length = 100)
     private String permission;
 
-    @Column(name = "PARENTID", length = 30)
-    private String parentId;
+    @Column(name = "PARENTID", length = 10)
+    private Integer parentId;
 
-    @Column(name = "PARENTIDS", length = 100)
-    private String parentIds;
+    @Column(name = "SORT", nullable = false, length = 10)
+    private Integer sort;
+
+    @Column(name = "MENU_LEVEL", nullable = false, length = 10)
+    private Integer level;
+
+    @Column(name = "ICON", length = 50)
+    private String icon;
 
     @Column(name = "AVAILABLE", length = 1)
     private Boolean available = Boolean.FALSE;

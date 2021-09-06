@@ -7,14 +7,13 @@ import com.kdwu.lightninggo.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service("sysUserService")
@@ -57,7 +56,6 @@ public class SysUserServiceImpl implements SysUserService{
     @Override
     public CommonResult login(SysUser user) {
         log.info("1. 開始登入。");
-
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 
         //Step 1. 檢查用戶帳號 & 檢查用戶密碼
@@ -81,9 +79,20 @@ public class SysUserServiceImpl implements SysUserService{
         log.info("3. 根據登入訊息獲取Token.");
         // 需使用jwt來生成token
         String token = tokenUtil.generateToken(userDetails);
-        Map<String, String> map = new HashMap<>(3);
-        map.put("tokenHead", "Bearer ");
+        Map<String, String> map = new HashMap<>(4);
         map.put("token", token);
+        
+        //帶入使用者資訊，權限，角色
+        StringBuffer sb = new StringBuffer(0);
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        int count = 0;
+        for (GrantedAuthority authority : authorities) {
+            if (count == 0) sb.append(authority.getAuthority());
+            else sb.append(";" + authority.getAuthority());
+            count++;
+        }
+        map.put("username", userDetails.getUsername());
+        map.put("roles", sb.toString());
 
         return CommonResult.success(map, "登入驗證成功!");
     }

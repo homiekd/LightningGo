@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("sys")
+@RequestMapping("SysUser")
 @Api(value = "後台使用者控制器")
 public class SysUserController {
 
@@ -22,14 +22,14 @@ public class SysUserController {
     private SysUserService sysUserService;
 
     @ApiOperation(value = "後台使用者登入")
-    @PostMapping("/login")
+    @PostMapping("/Login")
     public CommonResult login(@RequestBody SysUser sysUser){
         CommonResult result = sysUserService.login(sysUser);
         return result;
     }
 
     @ApiOperation(value = "後台使用者登出")
-    @GetMapping("/logout")
+    @GetMapping("/Logout")
     public CommonResult logout(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -39,9 +39,8 @@ public class SysUserController {
     }
 
     @ApiOperation(value = "取得後台使用者基本訊息")
-    @GetMapping("/getInfo")
+    @GetMapping("/GetInfo")
     public CommonResult getUserInfo(){
         return CommonResult.success(SecurityUtil.getSysUser(), "成功，取得後台使用者訊息。");
     }
-
 }

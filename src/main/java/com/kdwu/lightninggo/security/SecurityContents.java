@@ -6,8 +6,7 @@ package com.kdwu.lightninggo.security;
 public class SecurityContents {
     public static final String[] ACCESS_LIST = {
             //後台登入接口
-            "/sys/login",
-
+            "SysUser/Login",
             //swagger相關資源
             "/swagger-ui.html",
             "/doc.html",
