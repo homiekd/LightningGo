@@ -19,7 +19,8 @@ import java.util.Set;
 public class SysRole implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ROLE_SEQ")
+    @SequenceGenerator(sequenceName = "SYS_ROLE_SEQ", name = "ROLE_SEQ", allocationSize = 1 )
     @Column(name = "ROLE_NO", unique = true, nullable = false, length = 15)
     private Integer id;
 

@@ -11,6 +11,11 @@ public class CommonResult<T> {
     protected CommonResult(){
     }
 
+    protected CommonResult(int code, String message){
+        this.code = code;
+        this.message = message;
+    }
+
     protected CommonResult(int code, String message, T data){
         this.code = code;
         this.message = message;
@@ -98,5 +103,15 @@ public class CommonResult<T> {
      */
     public static <T> CommonResult<T> forbidden(T data) {
         return new CommonResult<T>(ResultCode.FORBIDDEN.getCode(), ResultCode.FORBIDDEN.getMessage(), data);
+    }
+
+    /**
+     * 錯誤的請求
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public static <T> CommonResult<T> badRequest(T data){
+        return new CommonResult<T>(ResultCode.BAD_REQUEST.getCode(), ResultCode.BAD_REQUEST.getMessage(), data);
     }
 }

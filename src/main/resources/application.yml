@@ -20,3 +20,11 @@ spring:
       hibernate:
         format_sql: true
 
+  # Redis DB 配置
+  redis:
+    host: 127.0.0.1
+    password: kdwu
+    port: 6380
+    database: 0
+
+

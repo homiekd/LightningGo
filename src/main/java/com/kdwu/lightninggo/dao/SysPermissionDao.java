@@ -6,5 +6,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SysPermissionDao extends JpaRepository<SysPermission, Integer> {
-    public SysPermission findById(int id);
+
+    /**
+     * 查詢對應父節點的權限物件
+     * @param parentId
+     * @return
+     */
+    public SysPermission findById(int parentId);
 }

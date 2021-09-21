@@ -5,8 +5,10 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,13 +21,18 @@ import java.util.Set;
 public class SysPermission implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERMISSION_SEQ")
+    @SequenceGenerator(sequenceName = "SYS_PERMISSION_SEQ", name = "PERMISSION_SEQ", allocationSize = 1 )
     @Column(name = "PERMISSION_NO", unique = true, nullable = false, length = 15)
     private Integer id;
 
     @Column(name = "NAME", length = 50)
     private String name;
 
+    @Column(name = "MENU_CODE", length = 50)
+    private String code;
+
+    @NotNull(message = "權限類型: 請勿空白")
     @Column(name = "RESOURCE_TYPE", nullable = false, length = 1)
     private Character resourcetype;
 
@@ -41,9 +48,11 @@ public class SysPermission implements Serializable {
     @Column(name = "PARENTID", length = 10)
     private Integer parentId;
 
+    @NotNull(message = "排序欄位: 請勿空白")
     @Column(name = "SORT", nullable = false, length = 10)
     private Integer sort;
 
+    @NotNull(message = "層級欄位: 請勿空白")
     @Column(name = "MENU_LEVEL", nullable = false, length = 10)
     private Integer level;
 
@@ -52,6 +61,12 @@ public class SysPermission implements Serializable {
 
     @Column(name = "AVAILABLE", length = 1)
     private Boolean available = Boolean.FALSE;
+
+    /**
+     * 子菜單集合
+     */
+    @Transient
+    private List<SysPermission> childPermissions;
 
     @JsonIgnore
     @OneToMany(mappedBy = "sysPermission", fetch = FetchType.EAGER)

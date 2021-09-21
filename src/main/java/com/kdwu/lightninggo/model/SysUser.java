@@ -1,6 +1,7 @@
 package com.kdwu.lightninggo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,11 +17,13 @@ import java.util.*;
 @Getter
 @NoArgsConstructor
 @Entity
+@JsonIgnoreProperties({"enabled", "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "authorities"})
 @Table(name = "SYS_USER")
 public class SysUser implements Serializable, UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_SEQ")
+    @SequenceGenerator(sequenceName = "SYS_USER_SEQ", name = "USER_SEQ", allocationSize = 1 )
     @Column(name = "USER_NO", unique = true, nullable = false, length = 15)
     private Integer id;
 
@@ -86,7 +89,7 @@ public class SysUser implements Serializable, UserDetails {
      */
     @Override
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     /**
@@ -122,7 +125,7 @@ public class SysUser implements Serializable, UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return state;
+        return this.state;
     }
 }
 
