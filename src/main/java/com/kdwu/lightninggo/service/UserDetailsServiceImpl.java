@@ -38,9 +38,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             if (sysUser == null) {
                 return null;
             }
+
             redisUtil.setValueTime("userInfo_" + username, sysUser, 5);
         }
 
         return sysUser;
     }
+
+
 }

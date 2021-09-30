@@ -6,6 +6,7 @@ import com.kdwu.lightninggo.model.*;
 import com.kdwu.lightninggo.pages.SysUserPage;
 import com.kdwu.lightninggo.utils.JwtTokenUtil;
 import com.kdwu.lightninggo.utils.PageUtil;
+import com.kdwu.lightninggo.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ public class SysUserServiceImpl implements SysUserService{
     private JwtTokenUtil tokenUtil;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public CommonResult add(SysUser sysUser) {
@@ -83,11 +86,13 @@ public class SysUserServiceImpl implements SysUserService{
         }
 
         if (!passwordEncoder.matches(user.getPassword(), userDetails.getPassword())) {
+            redisUtil.deleteKey("userInfo_" + userDetails.getUsername());
             return CommonResult.unauthorized("登入失敗：密碼錯誤，請重新輸入。");
         }
 
         //Step 2. 檢查帳號是否被禁用
         if (!userDetails.isEnabled()){
+            redisUtil.deleteKey("userInfo_" + userDetails.getUsername());
             return CommonResult.forbidden("登入失敗：此帳戶已被禁用，請通知管理員。");
         }
 
@@ -101,20 +106,27 @@ public class SysUserServiceImpl implements SysUserService{
         Map<String, Object> map = new HashMap<>(4);
         map.put("token", token);
 
-        // 帶入使用者資訊，權限，角色
-        StringBuffer sb = new StringBuffer(0);
-        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-        int count = 0;
-        for (GrantedAuthority authority : authorities) {
-            if (count == 0) sb.append(authority.getAuthority());
-            else sb.append(";" + authority.getAuthority());
-            count++;
+        // 帶入使用者資訊，角色，Menu，權限
+        Map<String, Object> identityMap = new HashMap<>(2);
+        Object[] authorities = userDetails.getAuthorities().toArray();
+        String[] roles = new String[authorities.length];
+        for (int i = 0; i < authorities.length; i++) {
+            GrantedAuthority authority = (GrantedAuthority) authorities[i];
+            roles[i] = authority.getAuthority();
         }
-        map.put("username", userDetails.getUsername());
-        map.put("roles", sb.toString());
+        identityMap.put("username", userDetails.getUsername());
+        identityMap.put("roles", roles);
+        map.put("identity", identityMap);
 
-        List<SysPermission> permissionTree = getPermissionTree((SysUser) userDetails);
-        map.put("permissionTree: ", permissionTree);
+        SysUser sysUser = (SysUser) userDetails;
+        List<SysPermission> menuTree = getMenuTree(sysUser);
+        map.put("menuTree", menuTree);
+
+        String[] permissions = getPermissions(sysUser);
+        if (permissions == null) {
+            permissions = new String[0]; //產生空陣列
+        }
+        map.put("permissions", permissions);
 
         return CommonResult.success(map, "登入驗證成功!");
     }
@@ -168,26 +180,56 @@ public class SysUserServiceImpl implements SysUserService{
     //------------------------------------- other method -----------------------------------------------------
 
     /**
-     * 遞迴產生樹狀權限並封裝
+     * String[] => 搜集使用者角色所有的權限並去除重複
      * @param sysUser
      * @return
      */
-    private List<SysPermission> getPermissionTree(SysUser sysUser){
+    private String[] getPermissions(SysUser sysUser) {
+        String[] permissions = null;
         // 當前用戶取使用者角色表
         Set<SysUserRole> userRoles = sysUser.getSysUserRoles();
         // CollectionUtils.isEmpty => 判斷集合是不是null或為空
         if (!CollectionUtils.isEmpty(userRoles)){
             // 收集取得使用者所擁有的角色的所有權限，並去除重複權限，且available為true，最終拿到整理排序過的權限表。
             List<SysPermission> allPermission = userRoles.stream()
+                    .map(SysUserRole::getRole)
+                    .flatMap(sysRole -> sysRole.getSysRolePermissions().stream())
+                    .filter(distinctByPermissionID(rolePermission -> rolePermission.getPermissionNo()))
+                    .filter(sysRolePermission -> sysRolePermission.getSysPermission().getAvailable())
+                    .map(SysRolePermission::getSysPermission)
+                    .sorted(Comparator.comparingInt(SysPermission::getLevel).thenComparingInt(SysPermission::getSort))
+                    .collect(Collectors.toList());
+
+            permissions = new String[allPermission.size()];
+            for (int i = 0; i < allPermission.size(); i++) {
+                permissions[i] = allPermission.get(i).getCode();
+            }
+        }
+        return permissions;
+    }
+
+    /**
+     * 遞迴產生樹狀Menu權限並封裝
+     * @param sysUser
+     * @return
+     */
+    private List<SysPermission> getMenuTree(SysUser sysUser){
+        // 當前用戶取使用者角色表
+        Set<SysUserRole> userRoles = sysUser.getSysUserRoles();
+        // CollectionUtils.isEmpty => 判斷集合是不是null或為空
+        if (!CollectionUtils.isEmpty(userRoles)){
+            // 收集取得使用者所擁有的角色的所有權限，並去除重複權限，且available為true，Resourcetype等於'M'，最終拿到整理排序過的權限表。
+            List<SysPermission> allMenu = userRoles.stream()
                                         .map(SysUserRole::getRole)
                                         .flatMap(sysRole -> sysRole.getSysRolePermissions().stream())
                                         .filter(distinctByPermissionID(rolePermission -> rolePermission.getPermissionNo()))
                                         .filter(sysRolePermission -> sysRolePermission.getSysPermission().getAvailable())
+                                        .filter(sysRolePermission -> sysRolePermission.getSysPermission().getResourcetype().charValue() == 'M')
                                         .map(SysRolePermission::getSysPermission)
                                         .sorted(Comparator.comparingInt(SysPermission::getLevel).thenComparingInt(SysPermission::getSort))
                                         .collect(Collectors.toList());
             // 參數0: 表示根節點的父ID
-            return transferPermissions(allPermission, 0);
+            return transferPermissions(allMenu, 0);
         }
         return null;
     }
@@ -210,19 +252,19 @@ public class SysUserServiceImpl implements SysUserService{
 
     /**
      * 封裝權限父+子層
-     * @param allPermission
+     * @param allMenu
      * @param parentId
      * @return
      */
-    private List<SysPermission> transferPermissions(List<SysPermission> allPermission, Integer parentId) {
+    private List<SysPermission> transferPermissions(List<SysPermission> allMenu, Integer parentId) {
         List<SysPermission> resultList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(allPermission)) {
-            for (SysPermission permission : allPermission) {
+        if (!CollectionUtils.isEmpty(allMenu)) {
+            for (SysPermission permission : allMenu) {
                 if (parentId.intValue() == permission.getParentId().intValue()) {
                     SysPermission permissionVo = new SysPermission();
                     BeanUtils.copyProperties(permission, permissionVo);
                     //遞迴查詢子權限，並封裝起來
-                    List<SysPermission> childList = transferPermissions(allPermission, permission.getId());
+                    List<SysPermission> childList = transferPermissions(allMenu, permission.getId());
                     if (!CollectionUtils.isEmpty(childList)) {
                         permissionVo.setChildPermissions(childList);
                     }

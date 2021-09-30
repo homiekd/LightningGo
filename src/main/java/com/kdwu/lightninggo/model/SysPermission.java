@@ -62,6 +62,10 @@ public class SysPermission implements Serializable {
     @Column(name = "AVAILABLE", length = 1)
     private Boolean available = Boolean.FALSE;
 
+    //前端控制用
+    @Column(name = "ACTIVE", length = 1)
+    private Boolean active = Boolean.FALSE;
+
     /**
      * 子菜單集合
      */

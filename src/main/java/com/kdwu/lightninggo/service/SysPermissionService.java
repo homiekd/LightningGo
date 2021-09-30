@@ -2,6 +2,7 @@ package com.kdwu.lightninggo.service;
 
 import com.kdwu.lightninggo.common.CommonResult;
 import com.kdwu.lightninggo.model.SysPermission;
+import com.kdwu.lightninggo.pages.SysPermissionPage;
 import com.kdwu.lightninggo.utils.PageUtil;
 
 import java.util.List;
@@ -13,5 +14,7 @@ public interface SysPermissionService {
 
     public List<SysPermission> getAllPermission();
 
-    public PageUtil<SysPermission> pageByPermission(Integer page, Integer size);
+    public PageUtil<SysPermission> pageByPermission(SysPermissionPage sysPermissionPage);
+
+    public SysPermission findByPrimaryKey(Integer id);
 }

@@ -3,6 +3,7 @@ package com.kdwu.lightninggo.service;
 import com.kdwu.lightninggo.common.CommonResult;
 import com.kdwu.lightninggo.dao.ProductBrandDao;
 import com.kdwu.lightninggo.model.ProductBrand;
+import com.kdwu.lightninggo.pages.ProductBrandPage;
 import com.kdwu.lightninggo.utils.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service("productBrandService")
@@ -44,12 +46,30 @@ public class ProductBrandServiceImpl implements ProductBrandService {
     }
 
     @Override
-    public PageUtil<ProductBrand> pageByProductBrand(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "id");
-        Page<ProductBrand> pageByProductBrand = productBrandDao.findAll(pageable);
+    public PageUtil<ProductBrand> pageByProductBrand(ProductBrandPage productBrandPage) {
+        Pageable pageable = PageRequest.of(productBrandPage.getPageIndex() - 1, productBrandPage.getPageSize(), Sort.Direction.ASC, "id");
+
+        String code = productBrandPage.getCode();
+        String name = productBrandPage.getName();
+        String description = productBrandPage.getDescription();
+        Boolean state = productBrandPage.getState(); //狀態
+        Date createdDate = productBrandPage.getCreatedDate(); //創建時間
+
+        Page<ProductBrand> pageByProductBrand;
+        if (name.isEmpty() && description.isEmpty()){
+            pageByProductBrand = productBrandDao.findAll(pageable);
+        }else {
+            pageByProductBrand = productBrandDao.findAllBySearchContext(code, name, description, pageable);
+        }
+
         PageUtil<ProductBrand> pageUtil = new PageUtil();
         pageUtil.setData(pageByProductBrand.getContent());
         pageUtil.setTotalCount(pageByProductBrand.getTotalElements());
         return pageUtil;
+    }
+
+    @Override
+    public ProductBrand findByPrimaryKey(Integer id) {
+        return productBrandDao.findById(id).get();
     }
 }

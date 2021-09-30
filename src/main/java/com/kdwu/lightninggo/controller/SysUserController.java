@@ -6,6 +6,7 @@ import com.kdwu.lightninggo.pages.SysUserPage;
 import com.kdwu.lightninggo.security.SecurityUtil;
 import com.kdwu.lightninggo.service.SysUserService;
 import com.kdwu.lightninggo.utils.PageUtil;
+import com.kdwu.lightninggo.utils.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -22,6 +25,8 @@ public class SysUserController {
 
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @ApiOperation(value = "後台使用者登入")
     @PostMapping("/Login")
@@ -34,8 +39,9 @@ public class SysUserController {
     @GetMapping("/Logout")
     public CommonResult logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
+        if (authentication != null && authentication.isAuthenticated()) {
             SecurityContextHolder.getContext().setAuthentication(null);
+            redisUtil.deleteKey("userInfo_" + authentication.getName());
         }
         return CommonResult.success("成功，後台使用者已登出");
     }

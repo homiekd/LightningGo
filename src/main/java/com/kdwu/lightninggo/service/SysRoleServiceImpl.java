@@ -51,6 +51,7 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         String name = sysRolePage.getName();
         String description = sysRolePage.getDescription();
+
         Page<SysRole> pageBySysRole;
         if (name.isEmpty() && description.isEmpty()){
             pageBySysRole = roleDao.findAll(pageable);

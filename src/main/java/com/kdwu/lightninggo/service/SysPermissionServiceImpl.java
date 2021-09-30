@@ -3,6 +3,7 @@ package com.kdwu.lightninggo.service;
 import com.kdwu.lightninggo.common.CommonResult;
 import com.kdwu.lightninggo.dao.SysPermissionDao;
 import com.kdwu.lightninggo.model.SysPermission;
+import com.kdwu.lightninggo.pages.SysPermissionPage;
 import com.kdwu.lightninggo.utils.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,12 +56,27 @@ public class SysPermissionServiceImpl implements SysPermissionService {
     }
 
     @Override
-    public PageUtil<SysPermission> pageByPermission(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "id");
-        Page<SysPermission> pageByPermission = permissionDao.findAll(pageable);
+    public PageUtil<SysPermission> pageByPermission(SysPermissionPage sysPermissionPage) {
+        Pageable pageable = PageRequest.of(sysPermissionPage.getPageIndex() - 1, sysPermissionPage.getPageSize(), Sort.Direction.ASC, "id");
+
+        String name = sysPermissionPage.getName();
+        String code = sysPermissionPage.getCode();
+
+        Page<SysPermission> pageBySysPermission;
+        if (name.isEmpty() && code.isEmpty()){
+            pageBySysPermission = permissionDao.findAll(pageable);
+        }else {
+            pageBySysPermission = permissionDao.findAllBySearchContext(name, code, pageable);
+        }
+
         PageUtil<SysPermission> pageUtil = new PageUtil();
-        pageUtil.setData(pageByPermission.getContent());
-        pageUtil.setTotalCount(pageByPermission.getTotalElements());
+        pageUtil.setData(pageBySysPermission.getContent());
+        pageUtil.setTotalCount(pageBySysPermission.getTotalElements());
         return pageUtil;
+    }
+
+    @Override
+    public SysPermission findByPrimaryKey(Integer id) {
+        return permissionDao.findById(id).get();
     }
 }
